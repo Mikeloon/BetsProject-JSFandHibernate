@@ -1,5 +1,7 @@
 package businessLogic;
-//hola
+import java.util.ArrayList;
+
+
 import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.Vector;
@@ -7,9 +9,13 @@ import java.util.Vector;
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 
+import org.w3c.dom.events.EventException;
+
 import configuration.ConfigXML;
+import configuration.UtilDate;
 import dataAccess.DataAccessInterface;
 import domain.Question;
+import domain.Actor;
 import domain.Event;
 import exceptions.EventFinished;
 import exceptions.QuestionAlreadyExist;
@@ -18,7 +24,7 @@ import exceptions.QuestionAlreadyExist;
  * It implements the business logic as a web service.
  */
 @WebService(endpointInterface = "businessLogic.BLFacade")
-public class BLFacadeImplementation  implements BLFacade {
+public class BLFacadeImplementation implements BLFacade {
 	DataAccessInterface dbManager;
 
 	public BLFacadeImplementation()  {		
@@ -107,7 +113,192 @@ public class BLFacadeImplementation  implements BLFacade {
 		return dates;
 	}
 	
-	
+	//REGISTER ZONE
+
+		/**
+		 * 
+		 * @param id
+		 * @param DNI
+		 * @param Nombre
+		 * @param Apellido1
+		 * @param Apellido2
+		 * @param fechaN
+		 * @param contrasena
+		 * @param sexo
+		 * @param email
+		 * @param saldo
+		 * @param admin :especifica si la bd tiene que crear un actor usuario o un actor admin (true: admin)
+		 * @return 0: Todx correcto; 1: Fecha es incorrecta; 2: Saldo es negativo
+		 */
+		public int registrarUsuario(ArrayList<String> datos, Date fechaN, char sexo, boolean admin) {
+
+
+			dbManager.open();
+
+			Date fechaHoy = UtilDate.currentDate();
+			Date fechaHace18 = UtilDate.fechaMayorEdad();
+
+			if (dbManager.actorExistente(datos.get(0))) {
+
+				dbManager.close();
+				return 1; //El usuario que intenta anadir ya existe
+			}
+			else 
+
+				if (fechaHoy.before(fechaN)) {
+					dbManager.close();
+					return 2; //Comprueba que la fecha es anterior al momento actual (Para que no se pueda poner que has nacido en 2025). Devuelve 2 si la fecha esta mal.
+				}
+
+				else 
+					if (fechaN.before(fechaHace18))
+						dbManager.registrarUsuario(datos, fechaN, sexo, admin);
+					else 
+						return 3;
+
+			dbManager.close();
+			return 0;
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		/**
+		 * 
+		 * @param nombre
+		 * @param fecha
+		 * @param comp
+		 * @return 1:  El evento es un acontecimiento que ya ha pasado.; 2:El evento que queremos a�adir ya existe; 0: To ok
+		 * @throws EventoNoExistenteException 
+		 */
+		public int crearEvento(String nombre, Date fecha, String descripcion, Actor admin) throws EventException {
+
+			dbManager.open();
+
+			Date now = new Date();
+			if (fecha.before(now)) return 1; //Queremos crear un evento en un acontecimiento ya pasado.
+			else if (dbManager.existeEvento(nombre, fecha)) return 2; //El evento que queremos a�adir ya existe.
+			else {
+				dbManager.crearEvento(nombre, fecha,descripcion, admin);
+			}
+			dbManager.close();
+			new Date();
+			return 0;
+		}
+		
+		
+		/**
+		 * Este metodo es para comprobar que un actor (usuario o administrador) ya existe.
+		 * @param user (El usuario que la Intefaz pasa para comprobar si el usuario existe)
+		 * @return True si existe el usuario, False si no.
+		 */
+		public boolean actorExistente (String nombreUsuario) {
+
+			boolean existe=false;
+			dbManager.open();
+			existe = dbManager.actorExistente(nombreUsuario);
+			dbManager.close();
+			return existe;
+		}
+		
+		/**
+		 * Dado el parametro identificador de una pregunta y el evento al que corresponde, comprueba que esa pregunta ya esta en la base de datos
+		 * 
+		 * @param event El evento que queremos comprobar si existe o no
+		 * @return True si existe, False si no
+		 */
+		public boolean existeLaPregunta (int id, Event evento) {
+
+			dbManager.open();
+
+			boolean salida = dbManager.existePregunta(id, evento);
+
+			dbManager.close();
+
+			return salida; 
+		}
+		
+		/**
+		 * Dado un usuario y una contresena comprueba que la contrasena dada y la asiganda al usuario coinciden
+		 * 
+		 * @param user El usuario del cual queremos combrobar la contrasena
+		 * @param pwd La contrasena qie debemos comprobar
+		 * @return 0: Si el nombre de usuario no esta registrado; 1: La pwd es correcta y es user; 2: La pwd es correcta y es admin; 3: contrase�a erronea
+		 */
+		public int comprobarContrasena (String user, String pwd) {
+
+			dbManager.open();
+
+			if (dbManager.actorExistente(user)) {
+
+				if (dbManager.comprobarContrasena(user, pwd)) { //si el usuario existe, y la pwd es correcta, entramos a comprobar si es admin o user
+
+					if (dbManager.esAdmin(user)) {
+						dbManager.close();
+						return 2; //2 si es admin
+					}
+					else {
+						dbManager.close();
+						return 1; //1 si es user
+					}
+				}
+				else
+					return 3; //si no coinciden nombre y contrase�a
+			}
+			dbManager.close();
+			return 0; //0 si el nombre de usuario no esta registrado
+		}
+
+		public Vector<Question> obtenerPreguntasPorEvento (Event evento){
+			dbManager.open();
+			Vector<Question> preguntas = dbManager.obtenerPreguntasPorEvento(evento);
+			dbManager.close();
+			return preguntas;
+		}
+		
+		/**
+		 * Dado el parametro clave de usurario manda a la clase DataAccess buscar el usuario correspondiente
+		 * 
+		 * @param user Nombre del usuario que queremos obtener
+		 * @return Null si el user no existe, el objeto Usuario al que corresponda ese nombre
+		 */
+		public Actor obtenerActor (String user) {
+
+			Actor usuario = null;
+			dbManager.open();
+			if (dbManager.actorExistente(user)) { //Comprobar si el usuario existe
+				usuario= dbManager.obtenerActor (user); //Pillar el user de la BD
+			}
+			dbManager.close();
+			return usuario;
+		}
+
+		public Vector<Event> obtenerEventosAdmin(String nAdmin) {
+			dbManager.open();
+			Vector<Event> eventos= dbManager.obtenerEventosAdmin(nAdmin);
+			dbManager.close();
+			return eventos;
+		}
+		
+		public Vector<Question> obtenerPreguntasAdmin(String nAdmin) {
+			dbManager.open();
+			Vector<Question> preguntas= dbManager.obtenerPreguntasAdmin(nAdmin);
+			dbManager.close();
+			return preguntas;
+		}
+		
+		public void borrarEvento(Event ev) {
+			dbManager.open();
+			dbManager.borrarEvento(ev);
+			dbManager.close();
+		}
+
+		public void borrarPregunta(Question p) {
+			dbManager.open();
+			dbManager.borrarPregunta(p);
+			dbManager.close();
+		}
+		
 	public void close() {
 		//DataAccess dB4oManager=new DataAccess(false);
 

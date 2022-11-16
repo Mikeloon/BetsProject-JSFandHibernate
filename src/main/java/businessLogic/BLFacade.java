@@ -1,6 +1,7 @@
 package businessLogic;
 
 import java.util.Vector;
+import java.util.ArrayList;
 import java.util.Date;
 
 
@@ -9,12 +10,15 @@ import java.util.Date;
 
 //import domain.Booking;
 import domain.Question;
+import domain.Actor;
 import domain.Event;
 import exceptions.EventFinished;
 import exceptions.QuestionAlreadyExist;
 
 import javax.jws.WebMethod;
 import javax.jws.WebService;
+
+import org.w3c.dom.events.EventException;
 
 /**
  * Interface that specifies the business logic.
@@ -57,6 +61,29 @@ public interface BLFacade  {
 	 * It is invoked only when the option "initialize" is declared in the tag dataBaseOpenMode of resources/config.xml file
 	 */	
 	@WebMethod public void initializeBD();
+	
+	@WebMethod public int registrarUsuario(ArrayList<String> datos, Date fechaN, char sexo, boolean admin);
+	
+	@WebMethod public int crearEvento(String nombre, Date fecha, String descripcion, Actor admin) throws EventException;
+	
+	@WebMethod public boolean actorExistente (String nombreUsuario);
+	
+	@WebMethod public boolean existeLaPregunta (int id, Event evento);
+	
+	@WebMethod public int comprobarContrasena (String user, String pwd);
+	
+	@WebMethod public Vector<Question> obtenerPreguntasPorEvento (Event evento);
+	
+	@WebMethod public Actor obtenerActor (String user);
+	
+	@WebMethod public Vector<Event> obtenerEventosAdmin(String nAdmin);
+	
+	@WebMethod public Vector<Question> obtenerPreguntasAdmin(String nAdmin);
+	
+	@WebMethod public void borrarEvento(Event ev);
 
+	@WebMethod public void borrarPregunta(Question p);
+	
+	@WebMethod public void close();
 	
 }

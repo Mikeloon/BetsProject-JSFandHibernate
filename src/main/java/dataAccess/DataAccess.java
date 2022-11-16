@@ -1,6 +1,7 @@
 package dataAccess;
 
 import java.io.File;
+import java.util.ArrayList;
 //hello
 import java.util.Calendar;
 import java.util.Date;
@@ -18,8 +19,13 @@ import javax.persistence.TypedQuery;
 
 import configuration.ConfigXML;
 import configuration.UtilDate;
+import domain.Actor;
+import domain.Administrador;
+import domain.Competicion;
 import domain.Event;
+import domain.Evento;
 import domain.Question;
+import domain.Usuario;
 import exceptions.QuestionAlreadyExist;
 
 /**
@@ -275,6 +281,106 @@ public boolean existQuestion(Event event, String question) {
 		f.delete();
 		File f2=new File(c.getDbFilename()+"$");
 		f2.delete();
+		
+	}
+
+	@Override
+	public boolean actorExistente(String string) {
+		Actor u = db.find(Usuario.class, string);
+		Actor o = db.find(Administrador.class, string);
+
+		return (u != null || o != null);
+	}
+
+	@Override
+	public void registrarUsuario(ArrayList<String> datos, Date fechaN, char sexo, boolean admin) {
+		db.getTransaction().begin();
+
+		if(!admin) { //se anade un usuario
+			Actor a = new Usuario(datos.get(0),datos.get(1),datos.get(2),datos.get(3),datos.get(4),fechaN,datos.get(5),sexo,datos.get(6),datos.get(7));
+			db.persist(a);
+		}
+		else { //se anade un administrador
+			Actor a = new Administrador(datos.get(0),datos.get(1),datos.get(2),datos.get(3),datos.get(4),fechaN,datos.get(5),sexo,datos.get(6),datos.get(7));
+			db.persist(a);
+		}
+
+		db.getTransaction().commit();
+		
+	}
+
+	@Override
+	public boolean existeEvento(String nombre, Date fecha) {
+		return (db.find(Event.class,"Evento:" + nombre + "Fecha:" + fecha.toString()) != null);
+
+	}
+
+	@Override
+	public void crearEvento(int id, Date fecha, String descripcion) {
+		db.getTransaction().begin();
+
+		Administrador admin0= (Administrador) db.find(Actor.class, admin.getNombreUsuario());
+
+		Event evento = new Event(id, descripcion, fecha);
+		db.persist(evento);
+
+		db.getTransaction().commit();
+	}
+
+	@Override
+	public boolean existePregunta(int id, Event evento) {
+		Question pregunta = db.find(Question.class, evento.getEventNumber() + "Pregunta:" + id);
+
+		return (pregunta != null);
+	}
+
+	@Override
+	public boolean comprobarContrasena(String user, String pwd) {
+		Actor u = db.find(Administrador.class, user); //obtiene el usuario de la base de datos
+		if (u==null) {
+			u=  db.find(Usuario.class, user);
+		}
+		return u.checkPswd(pwd);
+	}
+
+	@Override
+	public boolean esAdmin(String user) {
+		Actor a = db.find(Administrador.class, user); //busca el usuario con en parametro clave deseado sin realizar ninguna comprobacion de existencia, ya que ha sido hecha antes de llamar el metodo
+		return a != null;
+	}
+
+	@Override
+	public Vector<Question> obtenerPreguntasPorEvento(Event evento) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Actor obtenerActor(String user) {
+		return db.find(Actor.class, user); 
+	}
+
+	@Override
+	public Vector<Event> obtenerEventosAdmin(String nAdmin) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Vector<Question> obtenerPreguntasAdmin(String nAdmin) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void borrarEvento(Event ev) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void borrarPregunta(Question p) {
+		// TODO Auto-generated method stub
 		
 	}
 	
