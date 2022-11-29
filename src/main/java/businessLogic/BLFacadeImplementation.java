@@ -162,29 +162,6 @@ public class BLFacadeImplementation implements BLFacade {
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		/**
-		 * 
-		 * @param nombre
-		 * @param fecha
-		 * @param comp
-		 * @return 1:  El evento es un acontecimiento que ya ha pasado.; 2:El evento que queremos a�adir ya existe; 0: To ok
-		 * @throws EventoNoExistenteException 
-		 */
-		public int crearEvento(String nombre, Date fecha, String descripcion, Actor admin) throws EventException {
-
-			dbManager.open();
-
-			Date now = new Date();
-			if (fecha.before(now)) return 1; //Queremos crear un evento en un acontecimiento ya pasado.
-			else if (dbManager.existeEvento(nombre, fecha)) return 2; //El evento que queremos a�adir ya existe.
-			else {
-				dbManager.crearEvento(nombre, fecha,descripcion, admin);
-			}
-			dbManager.close();
-			new Date();
-			return 0;
-		}
 		
 		
 		/**
@@ -201,22 +178,6 @@ public class BLFacadeImplementation implements BLFacade {
 			return existe;
 		}
 		
-		/**
-		 * Dado el parametro identificador de una pregunta y el evento al que corresponde, comprueba que esa pregunta ya esta en la base de datos
-		 * 
-		 * @param event El evento que queremos comprobar si existe o no
-		 * @return True si existe, False si no
-		 */
-		public boolean existeLaPregunta (int id, Event evento) {
-
-			dbManager.open();
-
-			boolean salida = dbManager.existePregunta(id, evento);
-
-			dbManager.close();
-
-			return salida; 
-		}
 		
 		/**
 		 * Dado un usuario y una contresena comprueba que la contrasena dada y la asiganda al usuario coinciden
@@ -249,13 +210,6 @@ public class BLFacadeImplementation implements BLFacade {
 			return 0; //0 si el nombre de usuario no esta registrado
 		}
 
-		public Vector<Question> obtenerPreguntasPorEvento (Event evento){
-			dbManager.open();
-			Vector<Question> preguntas = dbManager.obtenerPreguntasPorEvento(evento);
-			dbManager.close();
-			return preguntas;
-		}
-		
 		/**
 		 * Dado el parametro clave de usurario manda a la clase DataAccess buscar el usuario correspondiente
 		 * 
@@ -273,41 +227,7 @@ public class BLFacadeImplementation implements BLFacade {
 			return usuario;
 		}
 
-		public Vector<Event> obtenerEventosAdmin(String nAdmin) {
-			dbManager.open();
-			Vector<Event> eventos= dbManager.obtenerEventosAdmin(nAdmin);
-			dbManager.close();
-			return eventos;
-		}
-		
-		public Vector<Question> obtenerPreguntasAdmin(String nAdmin) {
-			dbManager.open();
-			Vector<Question> preguntas= dbManager.obtenerPreguntasAdmin(nAdmin);
-			dbManager.close();
-			return preguntas;
-		}
-		
-		public void borrarEvento(Event ev) {
-			dbManager.open();
-			dbManager.borrarEvento(ev);
-			dbManager.close();
-		}
-
-		public void borrarPregunta(Question p) {
-			dbManager.open();
-			dbManager.borrarPregunta(p);
-			dbManager.close();
-		}
-		
-	public void close() {
-		//DataAccess dB4oManager=new DataAccess(false);
-
-		//dB4oManager.close();
-		dbManager.close();
-
-
-	}
-
+	
 	/**
 	 * This method invokes the data access to initialize the database with some events and questions.
 	 * It is invoked only when the option "initialize" is declared in the tag dataBaseOpenMode of resources/config.xml file

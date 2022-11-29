@@ -1,6 +1,7 @@
 package dataAccess;
 
 import java.io.File;
+
 import java.util.ArrayList;
 //hello
 import java.util.Calendar;
@@ -21,9 +22,7 @@ import configuration.ConfigXML;
 import configuration.UtilDate;
 import domain.Actor;
 import domain.Administrador;
-import domain.Competicion;
 import domain.Event;
-import domain.Evento;
 import domain.Question;
 import domain.Usuario;
 import exceptions.QuestionAlreadyExist;
@@ -309,30 +308,6 @@ public boolean existQuestion(Event event, String question) {
 		
 	}
 
-	@Override
-	public boolean existeEvento(String nombre, Date fecha) {
-		return (db.find(Event.class,"Evento:" + nombre + "Fecha:" + fecha.toString()) != null);
-
-	}
-
-	@Override
-	public void crearEvento(int id, Date fecha, String descripcion) {
-		db.getTransaction().begin();
-
-		Administrador admin0= (Administrador) db.find(Actor.class, admin.getNombreUsuario());
-
-		Event evento = new Event(id, descripcion, fecha);
-		db.persist(evento);
-
-		db.getTransaction().commit();
-	}
-
-	@Override
-	public boolean existePregunta(int id, Event evento) {
-		Question pregunta = db.find(Question.class, evento.getEventNumber() + "Pregunta:" + id);
-
-		return (pregunta != null);
-	}
 
 	@Override
 	public boolean comprobarContrasena(String user, String pwd) {
@@ -350,39 +325,10 @@ public boolean existQuestion(Event event, String question) {
 	}
 
 	@Override
-	public Vector<Question> obtenerPreguntasPorEvento(Event evento) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public Actor obtenerActor(String user) {
 		return db.find(Actor.class, user); 
 	}
 
-	@Override
-	public Vector<Event> obtenerEventosAdmin(String nAdmin) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Vector<Question> obtenerPreguntasAdmin(String nAdmin) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void borrarEvento(Event ev) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void borrarPregunta(Question p) {
-		// TODO Auto-generated method stub
-		
-	}
 	
 }
 

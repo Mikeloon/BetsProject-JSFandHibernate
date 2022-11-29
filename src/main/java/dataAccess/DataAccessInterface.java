@@ -1,11 +1,10 @@
 package dataAccess;
 
 import java.util.ArrayList;
+
 import java.util.Date;
 import java.util.Vector;
 
-import businessLogic.BLFacade;
-import businessLogic.BLFacadeImplementation;
 import domain.Actor;
 import domain.Event;
 import domain.Question;
@@ -73,32 +72,21 @@ public interface DataAccessInterface {
 	 * @return true if the event contains this the questions, false in other case
 	 */
 	boolean existQuestion(Event event, String question);
+	
+	
 
 	boolean actorExistente(String string);
 
 	void registrarUsuario(ArrayList<String> datos, Date fechaN, char sexo, boolean admin);
 
-	boolean existeEvento(String nombre, Date fecha);
-
-	void crearEvento(String nombre, Date fecha, String descripcion);
-
-	boolean existePregunta(int id, Event evento);
-
 	boolean comprobarContrasena(String user, String pwd);
 
 	boolean esAdmin(String user);
 
-	Vector<Question> obtenerPreguntasPorEvento(Event evento);
-
 	Actor obtenerActor(String user);
 
-	Vector<Event> obtenerEventosAdmin(String nAdmin);
 
-	Vector<Question> obtenerPreguntasAdmin(String nAdmin);
 
-	void borrarEvento(Event ev);
-
-	void borrarPregunta(Question p);
 
 	
 

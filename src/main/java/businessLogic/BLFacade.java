@@ -63,27 +63,11 @@ public interface BLFacade  {
 	@WebMethod public void initializeBD();
 	
 	@WebMethod public int registrarUsuario(ArrayList<String> datos, Date fechaN, char sexo, boolean admin);
-	
-	@WebMethod public int crearEvento(String nombre, Date fecha, String descripcion, Actor admin) throws EventException;
-	
+		
 	@WebMethod public boolean actorExistente (String nombreUsuario);
-	
-	@WebMethod public boolean existeLaPregunta (int id, Event evento);
-	
+		
 	@WebMethod public int comprobarContrasena (String user, String pwd);
-	
-	@WebMethod public Vector<Question> obtenerPreguntasPorEvento (Event evento);
-	
+		
 	@WebMethod public Actor obtenerActor (String user);
-	
-	@WebMethod public Vector<Event> obtenerEventosAdmin(String nAdmin);
-	
-	@WebMethod public Vector<Question> obtenerPreguntasAdmin(String nAdmin);
-	
-	@WebMethod public void borrarEvento(Event ev);
-
-	@WebMethod public void borrarPregunta(Question p);
-	
-	@WebMethod public void close();
-	
+		
 }
