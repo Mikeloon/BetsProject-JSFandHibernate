@@ -32,3 +32,49 @@ New type java.util.Vector<domain.Question>
 [2022-11-29 18:52:48 #7 type.registry] 
 New type java.util.Vector<java.lang.Object>
 
+------------------------------------------------------------------------------------------------------------------------
+
+[2022-11-29 22:44:42 #1 store] 
+Database '/Users/and333r/git/BetsProject-JSFandHibernate/src/main/resources/bets.temp' is opened by 16211@MacBook-de-Ander.local
+
+[2022-11-29 22:44:42 #2 type.registry] 
+New type domain.Question
+
+[2022-11-29 22:44:42 #3 type] 
+Type domain.Question is not enhanced.
+
+[2022-11-29 22:44:42 #4 type.registry] 
+New type domain.Event
+
+[2022-11-29 22:44:42 #5 type] 
+Type domain.Event is not enhanced.
+
+[2022-11-29 22:44:42 #6 type.registry] 
+New type java.util.Vector<domain.Question>
+
+[2022-11-29 22:44:42 #7 type.registry] 
+New type java.util.Vector<java.lang.Object>
+
+------------------------------------------------------------------------------------------------------------------------
+
+[2022-11-29 22:46:34 #1 store] 
+Database '/Users/and333r/git/BetsProject-JSFandHibernate/src/main/resources/bets.temp' is opened by 16249@MacBook-de-Ander.local
+
+[2022-11-29 22:46:34 #2 type.registry] 
+New type domain.Question
+
+[2022-11-29 22:46:34 #3 type] 
+Type domain.Question is not enhanced.
+
+[2022-11-29 22:46:34 #4 type.registry] 
+New type domain.Event
+
+[2022-11-29 22:46:34 #5 type] 
+Type domain.Event is not enhanced.
+
+[2022-11-29 22:46:34 #6 type.registry] 
+New type java.util.Vector<domain.Question>
+
+[2022-11-29 22:46:34 #7 type.registry] 
+New type java.util.Vector<java.lang.Object>
+
