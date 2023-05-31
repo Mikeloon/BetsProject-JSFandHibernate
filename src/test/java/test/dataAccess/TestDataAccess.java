@@ -1,5 +1,9 @@
 package test.dataAccess;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import java.util.List;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,81 +17,42 @@ import domain.Event;
 import domain.Question;
 
 public class TestDataAccess {
-	protected  EntityManager  db;
-	protected  EntityManagerFactory emf;
+	private DataAccess dataAccess;
 
-	ConfigXML  c=ConfigXML.getInstance();
+@BeforeEach
+public void setUp() {
+    dataAccess = new DataAccess();
+}
 
+@Test
+public void testGetAllData() {
+    List<Data> allData = dataAccess.getAllData();
+    assertNotNull(allData);
+    assertFalse(allData.isEmpty());
+}
 
-	public TestDataAccess()  {
-		
-		System.out.println("Creating TestDataAccess instance");
+@Test
+public void testGetDataById() {
+    Data data = dataAccess.getDataById(1);
+    assertNotNull(data);
+    assertEquals(1, data.getId());
+}
 
-		open();
-		
-	}
+@Test
+public void testAddData() {
+    Data data = new Data(1, "Data 1");
+    assertTrue(dataAccess.addData(data));
+}
 
-	
-	public void open(){
-		
-		System.out.println("Opening TestDataAccess instance ");
+@Test
+public void testUpdateData() {
+    Data data = new Data(1, "Updated Data");
+    assertTrue(dataAccess.updateData(data));
+}
 
-		String fileName=c.getDbFilename();
-		
-		if (c.isDatabaseLocal()) {
-			  emf = Persistence.createEntityManagerFactory("objectdb:"+fileName);
-			  db = emf.createEntityManager();
-		} else {
-			Map<String, String> properties = new HashMap<String, String>();
-			  properties.put("javax.persistence.jdbc.user", c.getUser());
-			  properties.put("javax.persistence.jdbc.password", c.getPassword());
-
-			  emf = Persistence.createEntityManagerFactory("objectdb://"+c.getDatabaseNode()+":"+c.getDatabasePort()+"/"+fileName, properties);
-
-			  db = emf.createEntityManager();
-    	   }
-		
-	}
-	public void close(){
-		db.close();
-		System.out.println("DataBase closed");
-	}
-
-	public boolean removeEvent(Event ev) {
-		System.out.println(">> DataAccessTest: removeEvent");
-		Event e = db.find(Event.class, ev.getEventNumber());
-		if (e!=null) {
-			db.getTransaction().begin();
-			db.remove(e);
-			db.getTransaction().commit();
-			return true;
-		} else 
-		return false;
-    }
-		
-		public Event addEventWithQuestion(String desc, Date d, String question, float qty) {
-			System.out.println(">> DataAccessTest: addEvent");
-			Event ev=null;
-				db.getTransaction().begin();
-				try {
-				    ev=new Event(desc,d);
-				    ev.addQuestion(question, qty);
-					db.persist(ev);
-					db.getTransaction().commit();
-				}
-				catch (Exception e){
-					e.printStackTrace();
-				}
-				return ev;
-	    }
-		public boolean existQuestion(Event ev,Question q) {
-			System.out.println(">> DataAccessTest: existQuestion");
-			Event e = db.find(Event.class, ev.getEventNumber());
-			if (e!=null) {
-				return e.DoesQuestionExists(q.getQuestion());
-			} else 
-			return false;
-			
-		}
+@Test
+public void testDeleteData() {
+    assertTrue(dataAccess.deleteData(1));
+}
 }
 
