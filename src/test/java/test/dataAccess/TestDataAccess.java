@@ -15,6 +15,7 @@ import javax.persistence.Persistence;
 import configuration.ConfigXML;
 import domain.Event;
 import domain.Question;
+import dataAccess.DataAccess;
 
 public class TestDataAccess {
 	private DataAccess dataAccess;
