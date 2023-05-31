@@ -6,7 +6,7 @@ import java.util.Date;
 import configuration.ConfigXML;
 import domain.Event;
 import test.dataAccess.TestDataAccess;
-mport org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
