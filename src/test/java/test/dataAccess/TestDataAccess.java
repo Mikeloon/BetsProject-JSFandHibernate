@@ -1,12 +1,14 @@
 package test.dataAccess;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-import java.util.List;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -14,46 +16,109 @@ import javax.persistence.Persistence;
 
 import configuration.ConfigXML;
 import domain.Event;
-import domain.Question;
-import dataAccess.DataAccess;
 
 public class TestDataAccess {
-	private DataAccess dataAccess;
+	protected  EntityManager  db;
+	protected  EntityManagerFactory emf;
 
-@BeforeEach
-public void setUp() {
-    dataAccess = new DataAccess();
-}
+	ConfigXML  c=ConfigXML.getInstance();
 
-@Test
-public void testGetAllData() {
-    List<Data> allData = dataAccess.getAllData();
-    assertNotNull(allData);
-    assertFalse(allData.isEmpty());
-}
 
-@Test
-public void testGetDataById() {
-    Data data = dataAccess.getDataById(1);
-    assertNotNull(data);
-    assertEquals(1, data.getId());
-}
+	public TestDataAccess()  {
+		
+		System.out.println("Creating TestDataAccess instance");
 
-@Test
-public void testAddData() {
-    Data data = new Data(1, "Data 1");
-    assertTrue(dataAccess.addData(data));
-}
+		open();
+		
+	}
 
-@Test
-public void testUpdateData() {
-    Data data = new Data(1, "Updated Data");
-    assertTrue(dataAccess.updateData(data));
-}
+	
+	public void open(){
+		
+		System.out.println("Opening TestDataAccess instance ");
 
-@Test
-public void testDeleteData() {
-    assertTrue(dataAccess.deleteData(1));
-}
-}
+		String fileName=c.getDbFilename();
+		
+		if (c.isDatabaseLocal()) {
+			  emf = Persistence.createEntityManagerFactory("objectdb:"+fileName);
+			  db = emf.createEntityManager();
+		} else {
+			Map<String, String> properties = new HashMap<String, String>();
+			  properties.put("javax.persistence.jdbc.user", c.getUser());
+			  properties.put("javax.persistence.jdbc.password", c.getPassword());
 
+			  emf = Persistence.createEntityManagerFactory("objectdb://"+c.getDatabaseNode()+":"+c.getDatabasePort()+"/"+fileName, properties);
+
+			  db = emf.createEntityManager();
+    	   }
+		
+	}
+	public void close(){
+		db.close();
+		System.out.println("DataBase closed");
+	}
+
+	public boolean removeEvent(Event ev) {
+		System.out.println(">> DataAccessTest: removeEvent");
+		Event e = db.find(Event.class, ev.getEventNumber());
+		if (e!=null) {
+			db.getTransaction().begin();
+			db.remove(e);
+			db.getTransaction().commit();
+			return true;
+		} else 
+		return false;
+    }
+		
+		public Event addEventWithQuestion(String desc, Date d, String question, float qty) {
+			System.out.println(">> DataAccessTest: addEvent");
+			Event ev=null;
+				db.getTransaction().begin();
+				try {
+				    ev=new Event(desc,d);
+				    ev.addQuestion(question, qty);
+					db.persist(ev);
+					db.getTransaction().commit();
+				}
+				catch (Exception e){
+					e.printStackTrace();
+				}
+				return ev;
+	    }
+
+	 @BeforeEach
+    public void setUp() {
+        open();
+    }
+    
+    @AfterEach
+    public void tearDown() {
+        close();
+    }
+    
+    @Test
+    public void testRemoveEvent() {
+        Event event = new Event();
+        boolean result = removeEvent(event);
+        assertTrue(result);
+    }
+    
+    @Test
+    public void testAddEventWithQuestion() {
+        String description = "Event description";
+        Date date = new Date();
+        String question = "Question";
+        float quantity = 10.0f;
+        
+        Event event = addEventWithQuestion(description, date, question, quantity);
+        assertNotNull(event);
+        assertEquals(description, event.getDescription());
+        assertEquals(date, event.getDate());
+        
+        // Check if the event has a question
+        assertNotNull(event.getQuestions());
+        assertFalse(event.getQuestions().isEmpty());
+        assertEquals(question, event.getQuestions().get(0).getQuestionText());
+        assertEquals(quantity, event.getQuestions().get(0).getBetMinimum(), 0.001);
+    }
+}
