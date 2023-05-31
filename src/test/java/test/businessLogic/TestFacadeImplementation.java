@@ -8,42 +8,32 @@ import domain.Event;
 import test.dataAccess.TestDataAccess;
 
 public class TestFacadeImplementation {
-	private TestFacadeImplementation testFacadeImplementation;
+	TestDataAccess dbManagerTest;
+ 	
+    
+	   public TestFacadeImplementation()  {
+			
+			System.out.println("Creating TestFacadeImplementation instance");
+			ConfigXML c=ConfigXML.getInstance();
+			dbManagerTest=new TestDataAccess(); 
+			dbManagerTest.close();
+		}
+		
+		 
+		public boolean removeEvent(Event ev) {
+			dbManagerTest.open();
+			boolean b=dbManagerTest.removeEvent(ev);
+			dbManagerTest.close();
+			return b;
 
-@BeforeEach
-public void setUp() {
-    testFacadeImplementation = new TestFacadeImplementation();
-}
+		}
+		
+		public Event addEventWithQuestion(String desc, Date d, String q, float qty) {
+			dbManagerTest.open();
+			Event o=dbManagerTest.addEventWithQuestion(desc,d,q, qty);
+			dbManagerTest.close();
+			return o;
 
-@Test
-public void testGetAllTests() {
-    List<Test> allTests = testFacadeImplementation.getAllTests();
-    assertNotNull(allTests);
-    assertFalse(allTests.isEmpty());
-}
-
-@Test
-public void testGetTestById() {
-    Test test = testFacadeImplementation.getTestById(1);
-    assertNotNull(test);
-    assertEquals(1, test.getId());
-}
-
-@Test
-public void testAddTest() {
-    Test test = new Test(1, "Test 1");
-    assertTrue(testFacadeImplementation.addTest(test));
-}
-
-@Test
-public void testUpdateTest() {
-    Test test = new Test(1, "Updated Test");
-    assertTrue(testFacadeImplementation.updateTest(test));
-}
-
-@Test
-public void testDeleteTest() {
-    assertTrue(testFacadeImplementation.deleteTest(1));
-}
+		}
 
 }
