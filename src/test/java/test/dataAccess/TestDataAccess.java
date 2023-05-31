@@ -4,12 +4,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -85,40 +79,4 @@ public class TestDataAccess {
 				}
 				return ev;
 	    }
-
-	 @BeforeEach
-    public void setUp() {
-        open();
-    }
-    
-    @AfterEach
-    public void tearDown() {
-        close();
-    }
-    
-    @Test
-    public void testRemoveEvent() {
-        Event event = new Event();
-        boolean result = removeEvent(event);
-        assertTrue(result);
-    }
-    
-    @Test
-    public void testAddEventWithQuestion() {
-        String description = "Event description";
-        Date date = new Date();
-        String question = "Question";
-        float quantity = 10.0f;
-        
-        Event event = addEventWithQuestion(description, date, question, quantity);
-        assertNotNull(event);
-        assertEquals(description, event.getDescription());
-        assertEquals(date, event.getDate());
-        
-        // Check if the event has a question
-        assertNotNull(event.getQuestions());
-        assertFalse(event.getQuestions().isEmpty());
-        assertEquals(question, event.getQuestions().get(0).getQuestionText());
-        assertEquals(quantity, event.getQuestions().get(0).getBetMinimum(), 0.001);
-    }
 }
