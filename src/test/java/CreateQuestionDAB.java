@@ -20,40 +20,150 @@ import test.dataAccess.TestDataAccess;
 
 public class CreateQuestionDAB {
 
-	private CreateQuestionDAB createQuestionDAB;
+	 //sut:system under test
+	 static DataAccess sut=new DataAccess();
+	 
+	 //additional operations needed to execute the test 
+	 static TestDataAccess testDA=new TestDataAccess();
 
-@BeforeEach
-public void setUp() {
-    createQuestionDAB = new CreateQuestionDAB();
-}
-
-@Test
-public void testCalculateMaxPoints() {
-    assertEquals(10, createQuestionDAB.calculateMaxPoints(5, 2));
-    assertEquals(0, createQuestionDAB.calculateMaxPoints(0, 0));
-    assertEquals(15, createQuestionDAB.calculateMaxPoints(7, 3));
-}
-
-@Test
-public void testGetQuestionById() {
-    assertNotNull(createQuestionDAB.getQuestionById(1));
-    assertNull(createQuestionDAB.getQuestionById(5));
-}
-
-@Test
-public void testAddQuestion() {
-    assertTrue(createQuestionDAB.addQuestion("Question 1", "Option 1", "Option 2", 2, 10));
-    assertFalse(createQuestionDAB.addQuestion(null, "Option 1", "Option 2", 2, 10));
-    assertFalse(createQuestionDAB.addQuestion("Question 2", null, "Option 2", 2, 10));
-    assertFalse(createQuestionDAB.addQuestion("Question 3", "Option 1", null, 2, 10));
-    assertFalse(createQuestionDAB.addQuestion("Question 4", "Option 1", "Option 2", -1, 10));
-    assertFalse(createQuestionDAB.addQuestion("Question 5", "Option 1", "Option 2", 2, -1));
-}
-
-@Test
-public void testDeleteQuestion() {
-    assertTrue(createQuestionDAB.deleteQuestion(1));
-    assertFalse(createQuestionDAB.deleteQuestion(5));
-}
+	private Event ev;
+	
+	
+	@Test
+	//sut.createQuestion:  The event has NOT one question with a queryText. 
+	public void test1() {
+		try {
+			
+			//define paramaters
+			String eventText="event1";
+			String queryText="query1";
+			Float betMinimum=new Float(2);
+			
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+			Date oneDate=null;;
+			try {
+				oneDate = sdf.parse("05/10/2022");
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}	
+			
+			//configure the state of the system (create object in the dabatase)
+			testDA.open();
+			ev = testDA.addEventWithQuestion(eventText,oneDate,"query2", betMinimum);
+			testDA.close();			
+			
+			//invoke System Under Test (sut)  
+			Question q=sut.createQuestion(ev, queryText, betMinimum);
+			
+			
+			//verify the results
+			assertTrue(q!=null);
+			assertEquals(q.getQuestion(),queryText);
+			assertEquals(q.getBetMinimum(),betMinimum,0);
+			
+			//q datubasean dago
+			testDA.open();
+			boolean exist = testDA.existQuestion(ev,q);
+				
+			assertTrue(exist);
+			testDA.close();
+			
+		   } catch (QuestionAlreadyExist e) {
+			// TODO Auto-generated catch block
+			// if the program goes to this point fail  
+			fail();
+			} finally {
+				  //Remove the created objects in the database (cascade removing)   
+				testDA.open();
+		          boolean b=testDA.removeEvent(ev);
+		          testDA.close();
+		      //     System.out.println("Finally "+b);          
+		        }
+		   }
+	@Test
+	//sut.createQuestion:  The event is null. The test fail
+		public void test2() {
+			try {
+				
+				//define paramaters
+				String eventText="event1";
+				String queryText="query1";
+				Float betMinimum=new Float(2);
+				
+				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+				Date oneDate=null;;
+				try {
+					oneDate = sdf.parse("05/10/2022");
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}	
+				
+				//invoke System Under Test (sut)  
+				Question q=sut.createQuestion(null, queryText, betMinimum);
+				
+				
+				//verify the results
+				assertTrue(q==null);
+				
+				
+			   } catch (QuestionAlreadyExist e) {
+				// TODO Auto-generated catch block
+				// if the program goes to this point fail  
+				fail();
+				} 
+			   }
+	@Test
+	//sut.createQuestion:  The question is null. The test fail
+	public void test3() {
+		try {
+			
+			//define paramaters
+			String eventText="event1";
+			String queryText=null;
+			Float betMinimum=new Float(2);
+			
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+			Date oneDate=null;;
+			try {
+				oneDate = sdf.parse("05/10/2022");
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}	
+			
+			//configure the state of the system (create object in the dabatase)
+			testDA.open();
+			ev = testDA.addEventWithQuestion(eventText,oneDate,"query2", betMinimum);
+			testDA.close();			
+			
+			//invoke System Under Test (sut)  
+			Question q=sut.createQuestion(ev, queryText, betMinimum);
+			
+			
+			//verify the results
+			assertTrue(q==null);
+			
+			
+			//q datubasean dago
+			testDA.open();
+			boolean exist = testDA.existQuestion(ev,q);
+				
+			assertTrue(!exist);
+			testDA.close();
+			
+		   } catch (QuestionAlreadyExist e) {
+			// TODO Auto-generated catch block
+			// if the program goes to this point fail  
+			fail();
+			} finally {
+				  //Remove the created objects in the database (cascade removing)   
+				testDA.open();
+		          boolean b=testDA.removeEvent(ev);
+		          testDA.close();
+		      //     System.out.println("Finally "+b);          
+		        }
+		   }
 }
 
